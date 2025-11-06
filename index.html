@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PDF RAG Query System</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
+  <style>
+    body { font-family: system-ui; margin: 2rem; background: #f9f9fb; }
+    #output { width: 100%; height: 800px; border: none; }
+  </style>
+</head>
+<body>
+  <h1>PDF Intelligent Query System</h1>
+  <p>Upload a PDF and ask questions – runs 100% in your browser!</p>
+  <iframe id="output" src="about:blank"></iframe>
+
+  <script>
+    async function main() {
+      let pyodide = await loadPyodide();
+      await pyodide.loadPackage(["micropip", "ssl"]);
+      await pyodide.runPythonAsync(`
+        import micropip
+        await micropip.install([
+          'gradio==5.4.0',
+          'pypdf==5.0.1',
+          'langchain==0.3.4',
+          'langchain-community==0.3.3',
+          'sentence-transformers==3.2.0',
+          'faiss-cpu==1.8.0.post1',
+          'transformers==4.46.0',
+          'torch==2.5.0+cpu',
+          'accelerate==1.0.1'
+        ])
+      `);
+      const appCode = await fetch("app.py").then(r => r.text());
+      pyodide.runPython(appCode);
+    }
+    main();
+  </script>
+</body>
+</html>
